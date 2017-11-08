@@ -1,7 +1,7 @@
 import socket
 import sys
 
-sockets=[]
+sockets=[]#buat kumpulan client
 idPort = []
 
 sock=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
