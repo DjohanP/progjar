@@ -14,8 +14,8 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.listen(1)
 
 def masukdb(user,passw):
-	#print user
-	#print passw
+	print user
+	print passw
 	import mysql.connector
 	#mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	#sudo dpkg -i mysql-connector-python_2.0.5-1ubuntu16.04_all.deb install mysql
@@ -42,11 +42,16 @@ try:
 		print('client connected from: ',address[0],'with id : ', address[1])
 		idPort.append(address[1])
 		#client.sendto("Masukkan nama anda: ",address)
-		usr = client.recv(100)
-		pwd = client.recv(100)
-		#print usr
-		#print pwd
-		masukdb(usr,pwd)
+		pil = client.recv(100)
+		print pil
+		if pil=="2":
+			print "reg"
+			usr = client.recv(100)
+			pwd = client.recv(100)
+			#print usr
+			#print pwd
+			masukdb(usr,pwd)	
+		
 
 except KeyboardInterrupt:
 	sock.close()
