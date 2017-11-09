@@ -19,7 +19,7 @@ def masukdb(user,passw):
 	import mysql.connector
 	#mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	#sudo dpkg -i mysql-connector-python_2.0.5-1ubuntu16.04_all.deb install mysql
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	cursor = cnx.cursor()
 	add_user = ("INSERT INTO user "
 		       "(nama, password) "
