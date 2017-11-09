@@ -1,5 +1,6 @@
 import socket
 import sys
+import mysql.connector
 
 sockets=[]#buat kumpulan client
 idPort = []
@@ -16,10 +17,10 @@ sock.listen(1)
 def masukdb(user,passw):
 	print user
 	print passw
-	import mysql.connector
+	
 	#mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	#sudo dpkg -i mysql-connector-python_2.0.5-1ubuntu16.04_all.deb install mysql
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
 	cursor = cnx.cursor()
 	add_user = ("INSERT INTO user "
 		       "(nama, password) "
@@ -31,6 +32,29 @@ def masukdb(user,passw):
 
 	cursor.close()
 	cnx.close()
+
+def cekusr(usr):
+	a=[]
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
+	cursor = cnx.cursor(buffered=True)
+	add_user = "SELECT * FROM user WHERE nama=%s"
+
+
+	cursor.execute(add_user,(usr,))
+	data = cursor.fetchall()
+	for row in data:
+		a.append(row)
+	#emp_no = cursor.lastrowid
+	cnx.commit()
+
+	cursor.close()
+	cnx.close()
+	if len(a)>0:
+		return 0
+	else:
+		return 1
+
+	
 
 input_socket=[sock]
 try:
@@ -50,7 +74,12 @@ try:
 			pwd = client.recv(100)
 			#print usr
 			#print pwd
-			masukdb(usr,pwd)	
+			a=cekusr(usr)
+			if a==0:
+				sock.send("Sudah Ada")
+			else:	
+				sock.sendto("Belum Ada")
+				#masukdb(usr,pwd)
 		
 
 except KeyboardInterrupt:
