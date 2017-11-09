@@ -9,9 +9,11 @@ client_socket.connect(server_address)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 try:
 	while True:
-		message = sys.stdin.readline()
-		data= client_socket.recv(100)
-		print data
+		print "Masukkan nama anda :"
+		message = raw_input()
+		client_socket.send(message)
+		print "Masukkan password anda :"
+		message = raw_input()
 		client_socket.send(message)
 		#print message
 
