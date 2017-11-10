@@ -54,6 +54,8 @@ try:
 				data = sock.recv(4096)
 				if not data :
 					print "koneksi mati"
+					client_socket.close()
+					exit()
 				else:
 					print data
 			else:
