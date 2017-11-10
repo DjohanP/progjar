@@ -63,7 +63,7 @@ def masukdb(user,passw):
 	
 	#mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	#sudo dpkg -i mysql-connector-python_2.0.5-1ubuntu16.04_all.deb install mysql
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	cursor = cnx.cursor()
 	add_user = ("INSERT INTO user "
 		       "(nama, password) "
@@ -78,7 +78,7 @@ def masukdb(user,passw):
 
 def cekusr(usr):
 	a=[]
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	cursor = cnx.cursor(buffered=True)
 	add_user = "SELECT * FROM user WHERE nama=%s"
 
@@ -101,7 +101,7 @@ def cekpwd(usr,pwd):
 	#print usr
 	#print pwd
 	a=[]
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	cursor = cnx.cursor(buffered=True)
 	add_user = "SELECT * FROM user WHERE nama=%s and password=%s"
 
