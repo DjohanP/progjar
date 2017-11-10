@@ -1,6 +1,13 @@
 import socket
 import sys
 import mysql.connector
+from threading import Thread 
+import select
+
+class clienthandler(Thread):
+	def __init__(self,client,number):
+		Thread.__init__(self)
+
 
 sockets=[]#buat kumpulan client
 idPort = []
@@ -13,7 +20,7 @@ print >> sys.stderr,'starting up on %s port %s'%server_address
 sock.bind(server_address)
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.listen(1)
-
+sockets.append(sock)
 def masukdb(user,passw):
 	print user
 	print passw
@@ -77,46 +84,78 @@ def cekpwd(usr,pwd):
 	else:
 		return 0
 
-	
+def broadcast(sockx,message):
+	for skt in sockets:
+		if skt!=sock and skt!=sockx:
+			try :
+				print "pesan berhasil dikirim"
+		                skt.send(message)
+			except:
+				print "tidak berhasil dikirim"
+				skt.close()
+				sockets.remove(skt)
+			
 
 input_socket=[sock]
 try:
 	while True:
-		client, address = sock.accept()
-		sockets.append(client)
-		#print client
-		#print address
-		print('client connected from: ',address[0],'with id : ', address[1])
-		idPort.append(address[1])
-		#client.sendto("Masukkan nama anda: ",address)
+		read_sockets,write_sockets,error_sockets = select.select(sockets,[],[])
+		for sockx in read_sockets:
+			if sock==sockx:
+				client, address = sock.accept()
+				sockets.append(client)
+				#print client
+				#print address
+				print('client connected from: ',address[0],'with id : ', address[1])
+				idPort.append(address[1])
+				#client.sendto("Masukkan nama anda: ",address)
 
-		cekk=0
-		while cekk==0:
-			pil = client.recv(100)
-			print pil
-			if pil=="2":
-				print "reg"
-				usr = client.recv(100)
-				pwd = client.recv(100)
-				#print usr
-				#print pwd
-				a=cekusr(usr)
-				if a==0:
-					client.sendto("Sudah Ada",address)
-				else:	
-					client.sendto("Belum Ada",address)
-					cekk=1
-					masukdb(usr,pwd)
-			elif pil=="1":
-				print "login"
-				usr = client.recv(100)
-				pwd = client.recv(100)
-				a=cekpwd(usr,pwd)
-				if a==0:
-					client.sendto("Gagal Login!",address)
-				else:
-					client.sendto("Berhasil Login!",address)
-					cekk=1
+				cekk=0
+				while cekk==0:
+					pil = client.recv(100)
+					print pil
+					if pil=="2":
+						print "reg"
+						usr = client.recv(100)
+						pwd = client.recv(100)
+						#print usr
+						#print pwd
+						a=cekusr(usr)
+						if a==0:
+							client.sendto("Sudah Ada",address)
+						else:	
+							client.sendto("Belum Ada",address)
+							cekk=1
+							masukdb(usr,pwd)
+					elif pil=="1":
+						print "login"
+						usr = client.recv(100)
+						pwd = client.recv(100)
+						a=cekpwd(usr,pwd)
+						if a==0:
+							client.sendto("Gagal Login!",address)
+						else:
+							client.sendto("Berhasil Login!",address)
+							cekk=1
+			else:
+				try:
+					datax = sockx.recv(1024)
+					if datax=="close":
+						print "mati"
+						sockx.close()
+						sockets.remove(sockx)
+						continue
+					elif datax:
+						print "hidup"
+						broadcast(sockx,datax)
+						print datax
+				except:
+					print "mati"
+					print sockx
+					sockx.close()
+					sockets.remove(sockx)
+					continue
+					#print "Client (%s, %s) is offline" % addr
 		
 
 except KeyboardInterrupt:

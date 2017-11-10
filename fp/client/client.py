@@ -1,6 +1,6 @@
 import socket
 import sys
-
+import select
 
 BUFSIZE=100
 
@@ -47,8 +47,23 @@ while cek==0:
 
 try:
 	while True:
-		print nama
-		input()
+		socket_list = [sys.stdin, client_socket]
+		read_sockets, write_sockets, error_sockets = select.select(socket_list , [], [])
+		for sock in read_sockets:
+			if sock == client_socket:
+				data = sock.recv(4096)
+				if not data :
+					print "koneksi mati"
+				else:
+					print data
+			else:
+				print nama		
+				msg = raw_input()
+				msg = "\r"+"<"+str(nama)+">"+msg
+				client_socket.send(msg)
+				if msg=="close":
+					client_socket.close()
+					exit()
 
 except KeyboardInterrupt:
 	client_socket.close()
