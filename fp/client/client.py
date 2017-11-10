@@ -59,11 +59,13 @@ try:
 			else:
 				print nama		
 				msg = raw_input()
-				msg = "\r"+"<"+str(nama)+">"+msg
-				client_socket.send(msg)
 				if msg=="close":
+					client_socket.send(msg)
 					client_socket.close()
 					exit()
+
+				msg = "\r"+"<"+str(nama)+">"+msg
+				client_socket.send(msg)
 
 except KeyboardInterrupt:
 	client_socket.close()
