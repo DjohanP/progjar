@@ -20,7 +20,7 @@ def masukdb(user,passw):
 	
 	#mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	#sudo dpkg -i mysql-connector-python_2.0.5-1ubuntu16.04_all.deb install mysql
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	cursor = cnx.cursor()
 	add_user = ("INSERT INTO user "
 		       "(nama, password) "
@@ -66,20 +66,24 @@ try:
 		print('client connected from: ',address[0],'with id : ', address[1])
 		idPort.append(address[1])
 		#client.sendto("Masukkan nama anda: ",address)
-		pil = client.recv(100)
-		print pil
-		if pil=="2":
-			print "reg"
-			usr = client.recv(100)
-			pwd = client.recv(100)
-			#print usr
-			#print pwd
-			a=cekusr(usr)
-			if a==0:
-				sock.send("Sudah Ada")
-			else:	
-				sock.sendto("Belum Ada")
-				#masukdb(usr,pwd)
+
+		cekk=0
+		while cekk==0:
+			pil = client.recv(100)
+			print pil
+			if pil=="2":
+				print "reg"
+				usr = client.recv(100)
+				pwd = client.recv(100)
+				#print usr
+				#print pwd
+				a=cekusr(usr)
+				if a==0:
+					client.sendto("Sudah Ada",address)
+				else:	
+					client.sendto("Belum Ada",address)
+					cekk=1
+					#masukdb(usr,pwd)
 		
 
 except KeyboardInterrupt:
