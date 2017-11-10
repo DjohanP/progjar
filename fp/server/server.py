@@ -6,7 +6,43 @@ import select
 
 class clienthandler(Thread):
 	def __init__(self,client,number):
+		global sockets
+		global idPort		
 		Thread.__init__(self)
+		self._client = client
+		self._number = number
+	def run(self):
+		cekk=0
+		while cekk==0:
+			pil = client.recv(100)
+			print pil
+			if pil=="2":
+				print "reg"
+				usr = self._client.recv.recv(100)
+				pwd = self._client.recv.recv(100)
+				print usr
+				print pwd
+				a=cekusr(usr)
+				if a==0:
+					self._client.send("Sudah Ada")
+				else:	
+					self._client.send("Belum Ada")
+					cekk=1
+					masukdb(usr,pwd)
+			elif pil=="1":
+				print "login"
+				usr = self._client.recv(100)
+				pwd = self._client.recv(100)
+				print usr
+				print pwd
+				a=cekpwd(usr,pwd)
+				if a==0:
+					self._client.send("Gagal Login!")
+				else:
+					self._client.send("Berhasil Login!")
+					cekk=1
+		
+		
 
 
 sockets=[]#buat kumpulan client
@@ -27,7 +63,7 @@ def masukdb(user,passw):
 	
 	#mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	#sudo dpkg -i mysql-connector-python_2.0.5-1ubuntu16.04_all.deb install mysql
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
 	cursor = cnx.cursor()
 	add_user = ("INSERT INTO user "
 		       "(nama, password) "
@@ -42,7 +78,7 @@ def masukdb(user,passw):
 
 def cekusr(usr):
 	a=[]
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
 	cursor = cnx.cursor(buffered=True)
 	add_user = "SELECT * FROM user WHERE nama=%s"
 
@@ -65,7 +101,7 @@ def cekpwd(usr,pwd):
 	#print usr
 	#print pwd
 	a=[]
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
 	cursor = cnx.cursor(buffered=True)
 	add_user = "SELECT * FROM user WHERE nama=%s and password=%s"
 
@@ -99,6 +135,7 @@ def broadcast(sockx,message):
 input_socket=[sock]
 try:
 	while True:
+		handlers = []
 		read_sockets,write_sockets,error_sockets = select.select(sockets,[],[])
 		for sockx in read_sockets:
 			if sock==sockx:
@@ -109,34 +146,12 @@ try:
 				print('client connected from: ',address[0],'with id : ', address[1])
 				idPort.append(address[1])
 				#client.sendto("Masukkan nama anda: ",address)
+				newthread = clienthandler(client,address[1])
+				handlers.append(newthread)
+				newthread.daemon = True				
+				newthread.start()
+				
 
-				cekk=0
-				while cekk==0:
-					pil = client.recv(100)
-					print pil
-					if pil=="2":
-						print "reg"
-						usr = client.recv(100)
-						pwd = client.recv(100)
-						#print usr
-						#print pwd
-						a=cekusr(usr)
-						if a==0:
-							client.sendto("Sudah Ada",address)
-						else:	
-							client.sendto("Belum Ada",address)
-							cekk=1
-							masukdb(usr,pwd)
-					elif pil=="1":
-						print "login"
-						usr = client.recv(100)
-						pwd = client.recv(100)
-						a=cekpwd(usr,pwd)
-						if a==0:
-							client.sendto("Gagal Login!",address)
-						else:
-							client.sendto("Berhasil Login!",address)
-							cekk=1
 			else:
 				try:
 					datax = sockx.recv(1024)
@@ -156,6 +171,8 @@ try:
 					sockets.remove(sockx)
 					continue
 					#print "Client (%s, %s) is offline" % addr
+			#for x in handlers:
+			#	x.join()
 		
 
 except KeyboardInterrupt:
