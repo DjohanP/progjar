@@ -27,6 +27,22 @@ while cek==0:
 			nama=msg
 			print "Akun anda sudah masuk"
 			cek=1
+	elif pil=="1":
+		print "Masukkan email anda :"
+		msg = raw_input()
+		client_socket.send(msg)
+		print "Masukkan password anda :"
+		message = raw_input()
+		client_socket.send(message)
+		psn=client_socket.recv(1000)
+		if(psn=="Gagal Login!"):
+			print psn
+		else:
+			nama=msg
+			print "Berhasil Login!"
+			cek=1
+	else:
+		print "Inputan salah"
 
 
 try:

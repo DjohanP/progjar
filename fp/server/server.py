@@ -35,7 +35,7 @@ def masukdb(user,passw):
 
 def cekusr(usr):
 	a=[]
-	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='imanuel89')
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	cursor = cnx.cursor(buffered=True)
 	add_user = "SELECT * FROM user WHERE nama=%s"
 
@@ -53,6 +53,29 @@ def cekusr(usr):
 		return 0
 	else:
 		return 1
+
+def cekpwd(usr,pwd):
+	#print usr
+	#print pwd
+	a=[]
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='root',password='')
+	cursor = cnx.cursor(buffered=True)
+	add_user = "SELECT * FROM user WHERE nama=%s and password=%s"
+
+
+	cursor.execute(add_user,(usr,pwd,))
+	data = cursor.fetchall()
+	for row in data:
+		a.append(row)
+	#emp_no = cursor.lastrowid
+	cnx.commit()
+
+	cursor.close()
+	cnx.close()
+	if len(a)>0:
+		return 1
+	else:
+		return 0
 
 	
 
@@ -83,7 +106,17 @@ try:
 				else:	
 					client.sendto("Belum Ada",address)
 					cekk=1
-					#masukdb(usr,pwd)
+					masukdb(usr,pwd)
+			elif pil=="1":
+				print "login"
+				usr = client.recv(100)
+				pwd = client.recv(100)
+				a=cekpwd(usr,pwd)
+				if a==0:
+					client.sendto("Gagal Login!",address)
+				else:
+					client.sendto("Berhasil Login!",address)
+					cekk=1
 		
 
 except KeyboardInterrupt:
