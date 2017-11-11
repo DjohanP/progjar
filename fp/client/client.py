@@ -1,6 +1,7 @@
 import socket
 import sys
 import select
+import os
 
 BUFSIZE=100
 
@@ -8,42 +9,93 @@ server_address = ('127.0.0.1', 5000)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(server_address)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
-cek=0
-while cek==0:
-	pil=raw_input("MENU AWAL!\n1. Login\n2. Register\nPilihan : ")
-	client_socket.send(pil)
-	print pil
-	if pil=="2":
-		print "Masukkan email anda :"
-		msg = raw_input()
-		client_socket.send(msg)
-		print "Masukkan password anda :"
-		message = raw_input()
-		client_socket.send(message)
-		psn=client_socket.recv(1000)
-		if(psn=="Sudah Ada"):
-			print "Email Sudah Ada!"
-		else:
-			nama=msg
-			print "Akun anda sudah masuk"
-			cek=1
-	elif pil=="1":
-		print "Masukkan email anda :"
-		msg = raw_input()
-		client_socket.send(msg)
-		print "Masukkan password anda :"
-		message = raw_input()
-		client_socket.send(message)
-		psn=client_socket.recv(1000)
-		if(psn=="Gagal Login!"):
-			print psn
-		else:
-			nama=msg
-			print "Berhasil Login!"
-			cek=1
-	else:
-		print "Inputan salah"
 
+def printMenu():
+	print "--Cetingan Messanger--"
+	print "1. Login"
+	print "2. Register"
+	print "0. Keluar"
+	print "Pilihan : "
+	
+def printMenuMasuk():
+	print "Selamat Datang di Cetingan Messanger"
+	print "------------------------------------"
+	print "1. List user online"
+	print "2. Private Chat"
+	print "3. Broadcast"
+	print "0. Logout"
+
+def printBack():
+	print "(Masukkan '0' untuk kembali ke menu)"
+
+
+pesan = ''
+cek=0
+while(1):
+	while cek==0:
+		os.system('clear')
+		if (pesan != ''):
+			print pesan
+		pesan = ''
+		printMenu()
+		pil=raw_input()
+		client_socket.send(pil)
+		#print pil
+		if pil=="2":
+			print "Masukkan email anda :"
+			msg = raw_input()
+			client_socket.send(msg)
+			print "Masukkan password anda :"
+			message = raw_input()
+			client_socket.send(message)
+			psn=client_socket.recv(1000)
+			if(psn=="Sudah Ada"):
+				print "Email Sudah Ada!"
+			else:
+				nama=msg
+				print "Akun anda sudah masuk"
+				cek=1
+		elif pil=="1":
+			print "Masukkan email anda :"
+			msg = raw_input()
+			client_socket.send(msg)
+			print "Masukkan password anda :"
+			message = raw_input()
+			client_socket.send(message)
+			psn=client_socket.recv(1000)
+			if(psn=="Gagal Login!"):
+				pesan = psn
+			else:
+				nama=msg
+				pesan = "Berhasil Login!"
+				cek=1
+		elif pil=="0":
+			client_socket.close()
+			sys.exit(0)	
+		else:
+			print "Inputan salah"
+
+	while cek == 1:
+		os.system('clear')
+		if (pesan != ''):
+			print pesan
+		pesan = ''
+		printMenuMasuk()
+		selected = raw_input()
+		
+		if(selected == "1"):
+			client_socket.send(selected)
+			onuser = client_socket.recv(100)
+			print onuser
+			printBack()
+			raw_input()
+		if(selected == "0"):
+			client_socket.send(selected)
+			ret = client_socket.recv(100)
+			if(ret == '1'):
+				pesan = 'Berhasil Logout!'
+				cek = 0
+		
 
 try:
 	while True:
