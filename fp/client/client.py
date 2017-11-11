@@ -2,6 +2,7 @@ import socket
 import sys
 import select
 import os
+import json
 
 BUFSIZE=100
 
@@ -11,14 +12,14 @@ client_socket.connect(server_address)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
 
 def printMenu():
-	print "--Cetingan Messanger--"
+	print "--Cetingan Messenger--"
 	print "1. Login"
 	print "2. Register"
 	print "0. Keluar"
 	print "Pilihan : "
 	
 def printMenuMasuk():
-	print "Selamat Datang di Cetingan Messanger"
+	print "Selamat Datang di Cetingan Messenger"
 	print "------------------------------------"
 	print "1. List user online"
 	print "2. Private Chat"
@@ -26,7 +27,7 @@ def printMenuMasuk():
 	print "0. Logout"
 
 def printBack():
-	print "(Masukkan '0' untuk kembali ke menu)"
+	print "(Masukkan apapun untuk kembali ke menu)"
 
 
 pesan = ''
@@ -87,6 +88,14 @@ while(1):
 			client_socket.send(selected)
 			onuser = client_socket.recv(100)
 			print onuser
+			onuser = json.loads(onuser)
+			print onuser
+			os.system('clear')
+			print 'User Online:\n'
+			for index, user in enumerate(onuser):
+				print index+1, '->', user[1]
+			
+			print ''
 			printBack()
 			raw_input()
 		if(selected == "0"):

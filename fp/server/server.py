@@ -3,6 +3,7 @@ import sys
 import mysql.connector
 from threading import Thread 
 import select
+import json
 
 current_user = []
 
@@ -50,7 +51,10 @@ class clienthandler(Thread):
 			while cekk == 1:
 				pill = client.recv(100)
 				if pill == "1":
-					getUserOnline()
+					data = getUserOnline()
+					data = json.dumps(data)
+					print data
+					client.send(data)
 				if pill == "0":
 					a = doLogout()
 					cekk = 0
@@ -150,21 +154,17 @@ def getUserOnline():
 	a=[]
 	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
 	cursor = cnx.cursor(buffered=True)
-	online_user = "SELECT * FROM user WHERE status = 1"
+	query = "SELECT * FROM user WHERE status = 1"
 
-	cursor.execute(online_user,)
+	cursor.execute(query)
 	data = cursor.fetchall()
 	for row in data:
 		a.append(row)
-	#emp_no = cursor.lastrowid
+	
 	cnx.commit()
+	
+	return a
 
-	cursor.close()
-	cnx.close()
-	if len(a)>0:
-		return a
-	else:
-		return 0
 
 def doLogout():
 	global current_user
