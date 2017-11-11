@@ -10,7 +10,7 @@ server_address = ('127.0.0.1', 5000)
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect(server_address)
 print >>sys.stderr, 'connecting to %s port %s' % server_address
-
+nama = ''
 def printMenu():
 	print "--Cetingan Messenger--"
 	print "1. Login"
@@ -18,7 +18,8 @@ def printMenu():
 	print "0. Keluar"
 	print "Pilihan : "
 	
-def printMenuMasuk():
+def printMenuMasuk(name):
+	print "Halo "+name+"!"
 	print "Selamat Datang di Cetingan Messenger"
 	print "------------------------------------"
 	print "1. List user online"
@@ -26,9 +27,57 @@ def printMenuMasuk():
 	print "3. Broadcast"
 	print "0. Logout"
 
+def printPesan(pesan):
+	for i in xrange(0, len(pesan)+4):
+		sys.stdout.write("-")
+	print "\n| "+pesan+" |"
+	for i in xrange(0, len(pesan)+4):
+		sys.stdout.write("-")
+	
+	print ''
+
 def printBack():
 	print "(Masukkan apapun untuk kembali ke menu)"
 
+def chatRoomRecv(nama, sock):
+	print "-------------------------------------------------------------"
+	print "Chatting dengan", nama
+	print "Mode: Menerima Pesan"
+	print "Petunjuk: Akan otomatis berubah ke mode mengirim pesan ketika "+nama
+	print "sudah mengahiri pengiriman pesannya"
+	print "-------------------------------------------------------------"
+	
+	while(1):
+		pesan = sock.recv(100)
+		if(pesan == '0'):
+			break
+		elif(pesan == '<<EXIT>>'):
+			return
+		else:
+			print nama+':', pesan
+		
+	print 'Chat Ended'
+	chatRoomSend(nama, sock)
+
+def chatRoomSend(nama, sock):
+	print "-------------------------------------------------------------"
+	print "Chatting dengan", nama
+	print "Mode: Mengirim Pesan"
+	print "Petunjuk: "
+	print "- Masukkan 0 jika ingin mengahiri pengiriman pesan"
+	print "  dan berubah menjadi mode menerima pesan"
+	print "- Masukkan <<EXIT>> untuk mengahiri percakapan"
+	print "-------------------------------------------------------------"
+	
+	while(1):
+		pesan = raw_input('> ')
+		sock.send(pesan)
+		if(pesan == '0'):
+			break
+		if(pesan == '<<EXIT>>'):
+			return
+	
+	chatRoomRecv(nama, sock)
 
 pesan = ''
 cek=0
@@ -36,14 +85,14 @@ while(1):
 	while cek==0:
 		os.system('clear')
 		if (pesan != ''):
-			print pesan
+			printPesan(pesan)
 		pesan = ''
 		printMenu()
 		pil=raw_input()
 		client_socket.send(pil)
 		#print pil
 		if pil=="2":
-			print "Masukkan email anda :"
+			print "Masukkan username anda :"
 			msg = raw_input()
 			client_socket.send(msg)
 			print "Masukkan password anda :"
@@ -51,13 +100,13 @@ while(1):
 			client_socket.send(message)
 			psn=client_socket.recv(1000)
 			if(psn=="Sudah Ada"):
-				print "Email Sudah Ada!"
+				print "Username Sudah Ada!"
 			else:
 				nama=msg
 				print "Akun anda sudah masuk"
 				cek=1
 		elif pil=="1":
-			print "Masukkan email anda :"
+			print "Masukkan username anda :"
 			msg = raw_input()
 			client_socket.send(msg)
 			print "Masukkan password anda :"
@@ -67,6 +116,7 @@ while(1):
 			if(psn=="Gagal Login!"):
 				pesan = psn
 			else:
+				global nama
 				nama=msg
 				pesan = "Berhasil Login!"
 				cek=1
@@ -79,9 +129,9 @@ while(1):
 	while cek == 1:
 		os.system('clear')
 		if (pesan != ''):
-			print pesan
+			printPesan(pesan)
 		pesan = ''
-		printMenuMasuk()
+		printMenuMasuk(nama)
 		selected = raw_input()
 		
 		if(selected == "1"):
@@ -98,6 +148,19 @@ while(1):
 			print ''
 			printBack()
 			raw_input()
+			
+		if(selected == "2"):
+			client_socket.send(selected)
+			tujuan = raw_input('Tulis nama yang akan kamu chat: ')
+			client_socket.send(tujuan)
+			action = raw_input('Masukkan 1 untuk mengirim pesan atau 2 untuk menerima pesan')
+			client_socket.send(action)
+			os.system('clear')
+			if(action == '1'):
+				chatRoomSend(tujuan, client_socket)
+			if(action == '2'):
+				chatRoomRecv(tujuan, client_socket)
+			
 		if(selected == "0"):
 			client_socket.send(selected)
 			ret = client_socket.recv(100)

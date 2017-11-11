@@ -6,7 +6,7 @@ import select
 import json
 
 current_user = []
-
+listSocketUsername = {}
 class clienthandler(Thread):
 	def __init__(self,client,number):
 		global sockets
@@ -18,7 +18,7 @@ class clienthandler(Thread):
 		cekk=0
 		while (1):			
 			while cekk==0:
-				pil = client.recv(100)
+				pil = self._client.recv(100)
 				print pil
 				if pil=="2":
 					print "reg"
@@ -39,7 +39,7 @@ class clienthandler(Thread):
 					pwd = self._client.recv(100)
 					print usr
 					print pwd
-					a=cekpwd(usr,pwd)
+					a=cekpwd(usr,pwd,self._client)
 					if a==0:
 						self._client.send("Gagal Login!")
 					else:
@@ -49,16 +49,26 @@ class clienthandler(Thread):
 					print "Client Disconnected"
 					
 			while cekk == 1:
-				pill = client.recv(100)
+				pill = self._client.recv(100)
 				if pill == "1":
 					data = getUserOnline()
 					data = json.dumps(data)
 					print data
-					client.send(data)
+					self._client.send(data)
+				if pill == "2":
+					lawan = self._client.recv(100)
+					action = self._client.recv(100)
+					global listSocketUsername
+					sock_lawan = listSocketUsername[lawan]
+					if(action == '1'):
+						chat(lawan, sock_lawan)
+					elif(action == '2'):
+						terima_chat(lawan, self._client)
+				
 				if pill == "0":
 					a = doLogout()
 					cekk = 0
-					client.send('1')
+					self._client.send('1')
 			
 		
 		
@@ -116,7 +126,7 @@ def cekusr(usr):
 	else:
 		return 1
 
-def cekpwd(usr,pwd):
+def cekpwd(usr,pwd,sockclient):
 	#print usr
 	#print pwd
 	global current_user
@@ -139,8 +149,11 @@ def cekpwd(usr,pwd):
 		cursor.execute(change_status % (a[0][0]))
 		cnx.commit()
 		current_user = a
-		print 'a = ', a
-		print 'cur = ', current_user
+		#print 'a = ', a
+		#print 'cur = ', current_user
+		global listSocketUsername
+		listSocketUsername[str(a[0][1])] = sockclient
+		print listSocketUsername
 		cursor.close()
 		cnx.close()	
 		return 1
@@ -183,6 +196,22 @@ def doLogout():
 	cnx.close()
 	
 	return 1
+
+def chat(lawan, sock_lawan):
+	while(1):
+		pesan = raw_input('> ')
+		if(pesan == '0'):
+			break
+		else:
+			sock_lawan.send(pesan)
+
+def terimaChat(lawan, sock):
+	while(1):
+		pesan = sock.recv()
+		if(pesan == '0'):
+			break
+		else:
+			print lawan+':', pesan
 
 def broadcast(sockx,message):
 	for skt in sockets:
