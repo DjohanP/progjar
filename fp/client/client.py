@@ -25,7 +25,14 @@ def printMenuMasuk(name):
 	print "1. List user online"
 	print "2. Private Chat"
 	print "3. Broadcast"
+	print "4. Group Chat"
 	print "0. Logout"
+
+def printGroupMenu()
+	print "-----Group Chat Beranda-----"
+	print "1. Create Grop Chat"
+	print "2. Group Chat"
+	print "0. Kembali Ke Menu Utama"
 
 def printPesan(pesan):
 	for i in xrange(0, len(pesan)+4):
