@@ -206,8 +206,18 @@ while(1):
 					notif = client_socket.recv(100)
 					print notif
 				if(gc_menu == "2"):
-					print "(Masukkan Nama Group Yang Akan DiChat)"
-					# nama_grup = raw_input()
+					ongrup = client_socket.recv(100)
+					# print onuser
+					ongrup = json.loads(ongrup)
+					print ongrup
+					os.system('clear')
+					print 'List Group:\n'
+					for index, grup in enumerate(ongrup):
+						print index+1, '->', grup[1]
+					
+					print ''
+					printBack()
+					raw_input()
 				if(gc_menu == "0"):
 					grup=0
 					break

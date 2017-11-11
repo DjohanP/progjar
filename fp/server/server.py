@@ -85,6 +85,11 @@ class clienthandler(Thread):
 							createGroup(nama_grup)
 							grup = 0
 							self._client.send('Berhasil Membuat Grup')
+						if men == "2":
+							data = getGroup()
+							data = json.dumps(data)
+							print data
+							self._client.send(data)
 				if pill == "0":
 					a = doLogout()
 					cekk = 0
@@ -188,6 +193,22 @@ def getUserOnline():
 	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
 	cursor = cnx.cursor(buffered=True)
 	query = "SELECT * FROM user WHERE status = 1"
+
+	cursor.execute(query)
+	data = cursor.fetchall()
+	for row in data:
+		a.append(row)
+	
+	cnx.commit()
+	
+	return a
+
+def getGroup():
+	global current_user
+	a=[]
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
+	cursor = cnx.cursor(buffered=True)
+	query = "SELECT * FROM grup"
 
 	cursor.execute(query)
 	data = cursor.fetchall()
