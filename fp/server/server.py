@@ -61,9 +61,9 @@ class clienthandler(Thread):
 					global listSocketUsername
 					sock_lawan = listSocketUsername[lawan]
 					if(action == '1'):
-						chat(lawan, sock_lawan)
+						chat(lawan, self._client, sock_lawan)
 					elif(action == '2'):
-						terima_chat(lawan, self._client)
+						terimaChat(lawan, self._client, sock_lawan)
 				
 				if pill == "0":
 					a = doLogout()
@@ -197,21 +197,29 @@ def doLogout():
 	
 	return 1
 
-def chat(lawan, sock_lawan):
+def chat(lawan, sock, sock_lawan):
 	while(1):
-		pesan = raw_input('> ')
+		pesan = sock.recv(100)
+		sock_lawan.send(pesan)
 		if(pesan == '0'):
 			break
+		if(pesan == '<<EXIT>>'):
+			return
 		else:
-			sock_lawan.send(pesan)
+			print 'sent', pesan, 'to', sock_lawan
+	terimaChat(lawan, sock, sock_lawan)
 
-def terimaChat(lawan, sock):
+def terimaChat(lawan, sock, sock_lawan):
 	while(1):
-		pesan = sock.recv()
+		pesan = sock.recv(100)
+		print 'FROM CLIENT ->', pesan
 		if(pesan == '0'):
 			break
+		if(pesan == '<<EXIT>>'):
+			return
 		else:
 			print lawan+':', pesan
+	chat(lawan, sock, sock_lawan)
 
 def broadcast(sockx,message):
 	for skt in sockets:

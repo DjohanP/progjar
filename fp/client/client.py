@@ -49,6 +49,7 @@ def chatRoomRecv(nama, sock):
 	
 	while(1):
 		pesan = sock.recv(100)
+		sock.send(pesan)
 		if(pesan == '0'):
 			break
 		elif(pesan == '<<EXIT>>'):
@@ -153,7 +154,7 @@ while(1):
 			client_socket.send(selected)
 			tujuan = raw_input('Tulis nama yang akan kamu chat: ')
 			client_socket.send(tujuan)
-			action = raw_input('Masukkan 1 untuk mengirim pesan atau 2 untuk menerima pesan')
+			action = raw_input('Masukkan 1 untuk mengirim pesan atau 2 untuk menerima pesan: ')
 			client_socket.send(action)
 			os.system('clear')
 			if(action == '1'):
