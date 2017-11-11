@@ -53,6 +53,8 @@ class clienthandler(Thread):
 					print "Client Disconnected"
 					
 			while cekk == 1:
+				men_grp = 0
+				grup = 0
 				pill = self._client.recv(100)
 				if pill == "1":
 					data = getUserOnline()
@@ -71,7 +73,18 @@ class clienthandler(Thread):
 					elif(action == '2'):
 						getChatHistory(lawan, listNumberUsername[self._number])
 						terimaChat(lawan, self._client, sock_lawan, self._number)
-				
+				if pill == "4":
+					men_grp = 1
+					while men_grp == 1:
+						men = self._client.recv(100)
+						if men == "1":
+							grup = 1
+						while grup == 1:
+							nama_grup = self._client.recv(100)
+							print nama_grup
+							createGroup(nama_grup)
+							grup = 0
+							self._client.send('Berhasil Membuat Grup')
 				if pill == "0":
 					a = doLogout()
 					cekk = 0
@@ -279,6 +292,17 @@ def getChatHistory(pengirim, penerima):
 	cnx.close()
 	
 	return (daripengirim, daripenerima)
+
+def createGroup(nama_grup):
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
+	cursor = cnx.cursor()
+	query = "INSERT INTO grup (nama) VALUES ('%s')"
+	cursor.execute(query % (nama_grup))
+	#emp_no = cursor.lastrowid
+	cnx.commit()
+
+	cursor.close()
+	cnx.close()
 
 def broadcast(sockx,message):
 	for skt in sockets:

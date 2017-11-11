@@ -194,13 +194,17 @@ while(1):
 		if(selected == "4"):
 			client_socket.send(selected)
 			grup=1
+			os.system('clear')
+			printGroupMenu()
 			while grup == 1:
-				os.system('clear')
-				printGroupMenu()
 				gc_menu = raw_input()
+				client_socket.send(gc_menu)
 				if(gc_menu == "1"):
 					print "(Masukkan Nama Group Yang Akan Dibuat)"
 					nama_grup = raw_input()
+					client_socket.send(nama_grup)
+					notif = client_socket.recv(100)
+					print notif
 				if(gc_menu == "2"):
 					print "(Masukkan Nama Group Yang Akan DiChat)"
 					# nama_grup = raw_input()
