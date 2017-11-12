@@ -1,5 +1,6 @@
 import socket
 import sys
+import base64
 import select
 import os
 import json
@@ -38,6 +39,18 @@ def printPesan(pesan):
 
 def printBack():
 	print "(Masukkan apapun untuk kembali ke menu)"
+
+def decrypt(msg):
+	return base64.b64decode(msg)
+
+def getChatHistory(sock):
+	chats = json.loads(sock.recv(1024))
+	#print chats
+	
+	print '>> Chat History <<\n'
+	for chat in chats:
+		print str(chat[0])+'\t:', decrypt(str(chat[2]))
+	print '>> Chat History END <<'
 
 def chatRoomRecv(name, sock):
 	print "-------------------------------------------------------------"
@@ -157,6 +170,7 @@ while(1):
 			client_socket.send(action)
 			os.system('clear')
 			if(action == '1'):
+				getChatHistory(client_socket)
 				chatRoomSend(tujuan, client_socket)
 			if(action == '2'):
 				chatRoomRecv(tujuan, client_socket)

@@ -17,6 +17,7 @@ class clienthandler(Thread):
 		self._client = client
 		self._number = number
 	def run(self):
+		global listNumberUsername
 		cekk=0
 		while (1):			
 			while cekk==0:
@@ -45,7 +46,6 @@ class clienthandler(Thread):
 					if a==0:
 						self._client.send("Gagal Login!")
 					else:
-						global listNumberUsername
 						listNumberUsername[str(self._number)] = usr
 						self._client.send("Berhasil Login!")
 						cekk=1
@@ -63,13 +63,18 @@ class clienthandler(Thread):
 					lawan = self._client.recv(100)
 					action = self._client.recv(100)
 					global listSocketUsername
-					global listNumberUsername
 					sock_lawan = listSocketUsername[lawan]
 					if(action == '1'):
-						getChatHistory(listNumberUsername[self._number], lawan)
+						chats = getChatHistory(listNumberUsername[str(self._number)], lawan)
+						print chats
+						chats = json.dumps(chats)
+						self._client.send(chats)
 						chat(lawan, self._client, sock_lawan, self._number)
 					elif(action == '2'):
-						getChatHistory(lawan, listNumberUsername[self._number])
+						chats = getChatHistory(listNumberUsername[str(self._number)], lawan)
+						print chats
+						chats = json.dumps(chats)
+						self._client.send(chats)
 						terimaChat(lawan, self._client, sock_lawan, self._number)
 				
 				if pill == "0":
@@ -252,33 +257,24 @@ def insertChat(dari, ke, pesan):
 	return 1
 
 def getChatHistory(pengirim, penerima):
-	daripengirim = []
+	chats = []
 	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
 	cursor = cnx.cursor(buffered=True)
-	query = "SELECT * FROM pesan WHERE pengirim='%s' AND penerima='%s'"
+	query = """SELECT nama_pengirim, nama_penerima, pesan FROM pesan 
+			   WHERE nama_pengirim='%s' AND nama_penerima='%s'
+			   OR nama_pengirim='%s' AND nama_penerima='%s' ORDER BY created_at"""
 	
-	print query % (pengirim, penerima)
-	cursor.execute(query % (pengirim, penerima))
+	print query % (pengirim, penerima, penerima, pengirim)
+	cursor.execute(query % (pengirim, penerima, penerima, pengirim))
 	data = cursor.fetchall()
 	for row in data:
-		daripengirim.append(row)
-	cnx.commit()
-	
-	daripenerima = []
-	cursor = cnx.cursor(buffered=True)
-	query = "SELECT * FROM pesan WHERE pengirim='%s' AND penerima='%s'"
-	
-	print query % (penerima, pengirim)
-	cursor.execute(query % (penerima, pengirim))
-	data = cursor.fetchall()
-	for row in data:
-		daripenerima.append(row)
+		chats.append(row)
 	cnx.commit()
 	
 	cursor.close()
 	cnx.close()
 	
-	return (daripengirim, daripenerima)
+	return chats
 
 def broadcast(sockx,message):
 	for skt in sockets:
