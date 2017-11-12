@@ -30,10 +30,10 @@ def printMenuMasuk(name):
 	print "0. Logout"
 
 def printGroupMenu():
-	print "-----Group Chat Beranda-----"
-	print "1. Create Grop Chat"
-	print "2. List Grop Chat"
-	print "3. Group Chat"
+	print "-----Grup Chat Beranda-----"
+	print "1. Create Grup Chat"
+	print "2. List Grup Chat"
+	print "3. Grup Chat"
 	print "0. Kembali Ke Menu Utama"
 
 def printGroupChat():
@@ -208,26 +208,28 @@ while(1):
 		if(selected == "4"):
 			client_socket.send(selected)
 			grup=1
-			os.system('clear')
-			printGroupMenu()
 			while grup == 1:
+				os.system('clear')
+				if (pesan != ''):
+					printPesan(pesan)
+				pesan = ''
+				printGroupMenu()
 				gc_menu = raw_input()
 				client_socket.send(gc_menu)
 				if(gc_menu == "1"):
-					print "(Masukkan Nama Group Yang Akan Dibuat)"
+					print "(Masukkan Nama Grup Yang Akan Dibuat)"
 					nama_grup = raw_input()
 					client_socket.send(nama_grup)
-					notif = client_socket.recv(100)
-					print notif
+					pesan = client_socket.recv(100)
 				if(gc_menu == "2"):
 					ongrup = client_socket.recv(100)
 					# print onuser
 					ongrup = json.loads(ongrup)
 					print ongrup
 					os.system('clear')
-					print 'List Group:\n'
-					for index, grup in enumerate(ongrup):
-						print index+1, '->', grup[1]
+					print 'List Grup:\n'
+					for index, grupku in enumerate(ongrup):
+						print index+1, '->', grupku[1]
 					
 					print ''
 					printBack()

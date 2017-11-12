@@ -83,18 +83,24 @@ class clienthandler(Thread):
 					while men_grp == 1:
 						men = self._client.recv(100)
 						if men == "1":
-							grup = 1
-						while grup == 1:
 							nama_grup = self._client.recv(100)
 							print nama_grup
 							createGroup(nama_grup)
-							grup = 0
 							self._client.send('Berhasil Membuat Grup')
-						if men == "2":
+						#while grup == 1:
+						#	nama_grup = self._client.recv(100)
+						#	print nama_grup
+						#	createGroup(nama_grup)
+						#	grup = 0
+						#	self._client.send('Berhasil Membuat Grup')
+						elif men == "2":
 							data = getGroup()
 							data = json.dumps(data)
 							print data
 							self._client.send(data)
+						elif men == "0":
+							men_grp = 0
+							break
 				if pill == "0":
 					a = doLogout()
 					cekk = 0
