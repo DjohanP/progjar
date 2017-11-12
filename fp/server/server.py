@@ -52,7 +52,8 @@ class clienthandler(Thread):
 					print "Client Disconnected"
 					
 			while cekk == 1:
-				print "RETURNED!2"
+				men_grp = 0
+				grup = 0
 				pill = self._client.recv(100)
 				if pill == "1":
 					data = getUserOnline()
@@ -77,7 +78,23 @@ class clienthandler(Thread):
 						chats = json.dumps(chats)
 						self._client.send(chats)
 						terimaChat(lawan, self._client, sock_lawan, self._number)
-				
+				if pill == "4":
+					men_grp = 1
+					while men_grp == 1:
+						men = self._client.recv(100)
+						if men == "1":
+							grup = 1
+						while grup == 1:
+							nama_grup = self._client.recv(100)
+							print nama_grup
+							createGroup(nama_grup)
+							grup = 0
+							self._client.send('Berhasil Membuat Grup')
+						if men == "2":
+							data = getGroup()
+							data = json.dumps(data)
+							print data
+							self._client.send(data)
 				if pill == "0":
 					a = doLogout()
 					cekk = 0
@@ -191,6 +208,22 @@ def getUserOnline():
 	
 	return a
 
+def getGroup():
+	global current_user
+	a=[]
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
+	cursor = cnx.cursor(buffered=True)
+	query = "SELECT * FROM grup"
+
+	cursor.execute(query)
+	data = cursor.fetchall()
+	for row in data:
+		a.append(row)
+	
+	cnx.commit()
+	
+	return a
+
 
 def doLogout():
 	global current_user
@@ -276,6 +309,17 @@ def getChatHistory(pengirim, penerima):
 	cnx.close()
 	
 	return chats
+
+def createGroup(nama_grup):
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
+	cursor = cnx.cursor()
+	query = "INSERT INTO grup (nama) VALUES ('%s')"
+	cursor.execute(query % (nama_grup))
+	#emp_no = cursor.lastrowid
+	cnx.commit()
+
+	cursor.close()
+	cnx.close()
 
 def broadcast(sockx,message):
 	for skt in sockets:

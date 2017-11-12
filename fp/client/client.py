@@ -26,7 +26,38 @@ def printMenuMasuk(name):
 	print "1. List user online"
 	print "2. Private Chat"
 	print "3. Broadcast"
+	print "4. Group Chat"
 	print "0. Logout"
+
+def printGroupMenu():
+	print "-----Group Chat Beranda-----"
+	print "1. Create Grop Chat"
+	print "2. List Grop Chat"
+	print "3. Group Chat"
+	print "0. Kembali Ke Menu Utama"
+
+def printGroupChat():
+	print "----------(Masukkan Nama Grup)-----------"
+
+# def printGroupRoom(name, sock):
+# 	print "-------------------------------------------------------------"
+# 	print "Grup ", name
+# 	print "Mode: Mengirim Pesan"
+# 	print "Petunjuk: "
+# 	print "- Masukkan 0 jika ingin mengahiri pengiriman pesan"
+# 	print "  dan berubah menjadi mode menerima pesan"
+# 	print "- Masukkan <<EXIT>> untuk mengahiri percakapan"
+# 	print "-------------------------------------------------------------"
+# 	while(1):
+# 		pesan = raw_input('> ')
+# 		sock.send(pesan)
+# 		if(pesan == '0'):
+# 			break
+# 		if(pesan == '<<EXIT>>'):
+# 			return
+	
+# 	chatRoomRecv(name, sock)
+
 
 def printPesan(pesan):
 	for i in xrange(0, len(pesan)+4):
@@ -145,7 +176,7 @@ while(1):
 		pesan = ''
 		printMenuMasuk(nama)
 		selected = raw_input()
-		
+		grup=0
 		if(selected == "1"):
 			client_socket.send(selected)
 			onuser = client_socket.recv(1024)
@@ -174,6 +205,37 @@ while(1):
 			if(action == '2'):
 				getChatHistory(client_socket)
 				chatRoomRecv(tujuan, client_socket)
+		if(selected == "4"):
+			client_socket.send(selected)
+			grup=1
+			os.system('clear')
+			printGroupMenu()
+			while grup == 1:
+				gc_menu = raw_input()
+				client_socket.send(gc_menu)
+				if(gc_menu == "1"):
+					print "(Masukkan Nama Group Yang Akan Dibuat)"
+					nama_grup = raw_input()
+					client_socket.send(nama_grup)
+					notif = client_socket.recv(100)
+					print notif
+				if(gc_menu == "2"):
+					ongrup = client_socket.recv(100)
+					# print onuser
+					ongrup = json.loads(ongrup)
+					print ongrup
+					os.system('clear')
+					print 'List Group:\n'
+					for index, grup in enumerate(ongrup):
+						print index+1, '->', grup[1]
+					
+					print ''
+					printBack()
+					raw_input()
+				if(gc_menu == "0"):
+					grup=0
+					break
+
 			
 		if(selected == "0"):
 			client_socket.send(selected)
