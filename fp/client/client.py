@@ -39,11 +39,11 @@ def printPesan(pesan):
 def printBack():
 	print "(Masukkan apapun untuk kembali ke menu)"
 
-def chatRoomRecv(nama, sock):
+def chatRoomRecv(name, sock):
 	print "-------------------------------------------------------------"
-	print "Chatting dengan", nama
+	print "Chatting dengan", name
 	print "Mode: Menerima Pesan"
-	print "Petunjuk: Akan otomatis berubah ke mode mengirim pesan ketika "+nama
+	print "Petunjuk: Akan otomatis berubah ke mode mengirim pesan ketika "+name
 	print "sudah mengahiri pengiriman pesannya"
 	print "-------------------------------------------------------------"
 	
@@ -55,21 +55,20 @@ def chatRoomRecv(nama, sock):
 		elif(pesan == '<<EXIT>>'):
 			return
 		else:
-			print nama+':', pesan
+			print name+':', pesan
 		
 	print 'Chat Ended'
-	chatRoomSend(nama, sock)
+	chatRoomSend(name, sock)
 
-def chatRoomSend(nama, sock):
+def chatRoomSend(name, sock):
 	print "-------------------------------------------------------------"
-	print "Chatting dengan", nama
+	print "Chatting dengan", name
 	print "Mode: Mengirim Pesan"
 	print "Petunjuk: "
 	print "- Masukkan 0 jika ingin mengahiri pengiriman pesan"
 	print "  dan berubah menjadi mode menerima pesan"
 	print "- Masukkan <<EXIT>> untuk mengahiri percakapan"
 	print "-------------------------------------------------------------"
-	
 	while(1):
 		pesan = raw_input('> ')
 		sock.send(pesan)
@@ -78,7 +77,7 @@ def chatRoomSend(nama, sock):
 		if(pesan == '<<EXIT>>'):
 			return
 	
-	chatRoomRecv(nama, sock)
+	chatRoomRecv(name, sock)
 
 pesan = ''
 cek=0

@@ -4,9 +4,11 @@ import mysql.connector
 from threading import Thread 
 import select
 import json
+import base64
 
 current_user = []
 listSocketUsername = {}
+listNumberUsername = {}
 class clienthandler(Thread):
 	def __init__(self,client,number):
 		global sockets
@@ -43,6 +45,8 @@ class clienthandler(Thread):
 					if a==0:
 						self._client.send("Gagal Login!")
 					else:
+						global listNumberUsername
+						listNumberUsername[str(self._number)] = usr
 						self._client.send("Berhasil Login!")
 						cekk=1
 				elif pil=="0":
@@ -61,9 +65,9 @@ class clienthandler(Thread):
 					global listSocketUsername
 					sock_lawan = listSocketUsername[lawan]
 					if(action == '1'):
-						chat(lawan, self._client, sock_lawan)
+						chat(lawan, self._client, sock_lawan, self._number)
 					elif(action == '2'):
-						terimaChat(lawan, self._client, sock_lawan)
+						terimaChat(lawan, self._client, sock_lawan, self._number)
 				
 				if pill == "0":
 					a = doLogout()
@@ -197,19 +201,25 @@ def doLogout():
 	
 	return 1
 
-def chat(lawan, sock, sock_lawan):
+def chat(lawan, sock, sock_lawan, thread_number):
+	global listNumberUsername
 	while(1):
+		#print 'masuk fungsi chat'
+		pengirim = listNumberUsername[str(thread_number)]
+		#print pengirim
 		pesan = sock.recv(100)
+		#print pesan
 		sock_lawan.send(pesan)
 		if(pesan == '0'):
 			break
 		if(pesan == '<<EXIT>>'):
 			return
 		else:
+			insertChat(pengirim, lawan, pesan)
 			print 'sent', pesan, 'to', sock_lawan
 	terimaChat(lawan, sock, sock_lawan)
 
-def terimaChat(lawan, sock, sock_lawan):
+def terimaChat(lawan, sock, sock_lawan, thread_number):
 	while(1):
 		pesan = sock.recv(100)
 		print 'FROM CLIENT ->', pesan
@@ -219,7 +229,25 @@ def terimaChat(lawan, sock, sock_lawan):
 			return
 		else:
 			print lawan+':', pesan
-	chat(lawan, sock, sock_lawan)
+	chat(lawan, sock, sock_lawan, thread_number)
+
+def enkripsi(pesan):
+	return base64.b64encode(pesan)
+	
+def insertChat(dari, ke, pesan):
+	pesan = enkripsi(pesan)
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
+	cursor = cnx.cursor(buffered=True)
+	query = "INSERT INTO pesan (nama_pengirim, nama_penerima, pesan) VALUES ('%s', '%s', '%s')"
+	
+	print query % (dari, ke, pesan)
+	cursor.execute(query % (dari, ke, pesan))
+	cnx.commit()
+	
+	cursor.close()
+	cnx.close()
+	
+	return 1
 
 def broadcast(sockx,message):
 	for skt in sockets:
