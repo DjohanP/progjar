@@ -63,10 +63,13 @@ class clienthandler(Thread):
 					lawan = self._client.recv(100)
 					action = self._client.recv(100)
 					global listSocketUsername
+					global listNumberUsername
 					sock_lawan = listSocketUsername[lawan]
 					if(action == '1'):
+						getChatHistory(listNumberUsername[self._number], lawan)
 						chat(lawan, self._client, sock_lawan, self._number)
 					elif(action == '2'):
+						getChatHistory(lawan, listNumberUsername[self._number])
 						terimaChat(lawan, self._client, sock_lawan, self._number)
 				
 				if pill == "0":
@@ -185,7 +188,6 @@ def getUserOnline():
 
 def doLogout():
 	global current_user
-	a=[]
 	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
 	cursor = cnx.cursor(buffered=True)
 	query = "UPDATE user SET status='0' WHERE id=%d"
@@ -248,6 +250,35 @@ def insertChat(dari, ke, pesan):
 	cnx.close()
 	
 	return 1
+
+def getChatHistory(pengirim, penerima):
+	daripengirim = []
+	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
+	cursor = cnx.cursor(buffered=True)
+	query = "SELECT * FROM pesan WHERE pengirim='%s' AND penerima='%s'"
+	
+	print query % (pengirim, penerima)
+	cursor.execute(query % (pengirim, penerima))
+	data = cursor.fetchall()
+	for row in data:
+		daripengirim.append(row)
+	cnx.commit()
+	
+	daripenerima = []
+	cursor = cnx.cursor(buffered=True)
+	query = "SELECT * FROM pesan WHERE pengirim='%s' AND penerima='%s'"
+	
+	print query % (penerima, pengirim)
+	cursor.execute(query % (penerima, pengirim))
+	data = cursor.fetchall()
+	for row in data:
+		daripenerima.append(row)
+	cnx.commit()
+	
+	cursor.close()
+	cnx.close()
+	
+	return (daripengirim, daripenerima)
 
 def broadcast(sockx,message):
 	for skt in sockets:

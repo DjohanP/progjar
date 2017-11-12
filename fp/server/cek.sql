@@ -30,6 +30,15 @@ CREATE TABLE `user` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1;
 
+CREATE TABLE `pesan` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `nama_pengirim` varchar(45) NOT NULL,
+  `nama_penerima` varchar(45) NOT NULL,
+  `pesan` text,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=latin1;
+
 
 --
 -- Dumping data for table `user`
