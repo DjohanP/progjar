@@ -113,11 +113,10 @@ while(1):
 			client_socket.send(message)
 			psn=client_socket.recv(1000)
 			if(psn=="Sudah Ada"):
-				print "Username Sudah Ada!"
+				pesan = "Username Sudah Terdaftar!"
 			else:
 				nama=msg
-				print "Akun anda sudah masuk"
-				cek=1
+				pesan = 'Registrasi Berhasil!'
 		elif pil=="1":
 			print "Masukkan username anda :"
 			msg = raw_input()
@@ -149,7 +148,7 @@ while(1):
 		
 		if(selected == "1"):
 			client_socket.send(selected)
-			onuser = client_socket.recv(100)
+			onuser = client_socket.recv(1024)
 			print onuser
 			onuser = json.loads(onuser)
 			print onuser
@@ -173,6 +172,7 @@ while(1):
 				getChatHistory(client_socket)
 				chatRoomSend(tujuan, client_socket)
 			if(action == '2'):
+				getChatHistory(client_socket)
 				chatRoomRecv(tujuan, client_socket)
 			
 		if(selected == "0"):

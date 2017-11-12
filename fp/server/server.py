@@ -34,7 +34,6 @@ class clienthandler(Thread):
 						self._client.send("Sudah Ada")
 					else:	
 						self._client.send("Belum Ada")
-						cekk=1
 						masukdb(usr,pwd)
 				elif pil=="1":
 					print "login"
@@ -53,6 +52,7 @@ class clienthandler(Thread):
 					print "Client Disconnected"
 					
 			while cekk == 1:
+				print "RETURNED!2"
 				pill = self._client.recv(100)
 				if pill == "1":
 					data = getUserOnline()
@@ -70,6 +70,7 @@ class clienthandler(Thread):
 						chats = json.dumps(chats)
 						self._client.send(chats)
 						chat(lawan, self._client, sock_lawan, self._number)
+						print "RETURNED!"
 					elif(action == '2'):
 						chats = getChatHistory(listNumberUsername[str(self._number)], lawan)
 						print chats
@@ -224,7 +225,7 @@ def chat(lawan, sock, sock_lawan, thread_number):
 		else:
 			insertChat(pengirim, lawan, pesan)
 			print 'sent', pesan, 'to', sock_lawan
-	terimaChat(lawan, sock, sock_lawan)
+	terimaChat(lawan, sock, sock_lawan, thread_number)
 
 def terimaChat(lawan, sock, sock_lawan, thread_number):
 	while(1):
