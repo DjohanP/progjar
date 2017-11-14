@@ -104,6 +104,24 @@ def chatRoomRecv(name, sock):
 	print 'Chat Ended'
 	chatRoomSend(name, sock)
 
+def broadcastRoomRecv(sock):
+	print "-------------------------------------------------------------"
+	print "Mode: Menerima Broadcast"
+	print "-------------------------------------------------------------"
+	
+	while(1):
+		pesan = sock.recv(100)
+		sock.send(pesan)
+		if(pesan == '0'):
+			break
+		elif(pesan == '<<EXIT>>'):
+			return
+		else:
+			print '>', pesan
+		
+	print 'Chat Ended'
+
+
 def chatRoomSend(name, sock):
 	print "-------------------------------------------------------------"
 	print "Chatting dengan", name
@@ -122,6 +140,18 @@ def chatRoomSend(name, sock):
 			return
 	
 	chatRoomRecv(name, sock)
+
+def broadcastRoomSend(sock):
+	print "-------------------------------------------------------------"
+	print "Mode: Broadcast Mengirim Pesan"
+	print "Petunjuk: "
+	print "- Masukkan <<EXIT>> untuk mengahiri broadcast"
+	print "-------------------------------------------------------------"
+	while(1):
+		pesan = raw_input('> ')
+		sock.send(pesan)
+		if(pesan == '<<EXIT>>'):
+			return
 
 pesan = ''
 cek=0
@@ -205,6 +235,15 @@ while(1):
 			if(action == '2'):
 				getChatHistory(client_socket)
 				chatRoomRecv(tujuan, client_socket)
+		if(selected == "3"):
+			client_socket.send(selected)
+			action = raw_input('Masukkan 1 untuk mengirim pesan atau 2 untuk menerima pesan: ')
+			client_socket.send(action)
+			os.system('clear')
+			if(action == '1'):
+				broadcastRoomSend(client_socket)
+			if(action == '2'):
+				broadcastRoomRecv(client_socket)
 		if(selected == "4"):
 			client_socket.send(selected)
 			grup=1

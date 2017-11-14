@@ -65,6 +65,9 @@ class clienthandler(Thread):
 					action = self._client.recv(100)
 					global listSocketUsername
 					sock_lawan = listSocketUsername[lawan]
+					for index, sock_l in enumerate(listSocketUsername):
+						print index+1, '->', sock_l
+
 					if(action == '1'):
 						chats = getChatHistory(listNumberUsername[str(self._number)], lawan)
 						print chats
@@ -78,6 +81,13 @@ class clienthandler(Thread):
 						chats = json.dumps(chats)
 						self._client.send(chats)
 						terimaChat(lawan, self._client, sock_lawan, self._number)
+				if pill == "3":
+					action = self._client.recv(100)
+					if(action == '1'):
+						broadcastChat(self._client, self._number)
+						print "RETURNED!"
+					elif(action == '2'):
+						broadcastTerimaChat(self._client, self._number)
 				if pill == "4":
 					men_grp = 1
 					while men_grp == 1:
@@ -87,12 +97,6 @@ class clienthandler(Thread):
 							print nama_grup
 							createGroup(nama_grup)
 							self._client.send('Berhasil Membuat Grup')
-						#while grup == 1:
-						#	nama_grup = self._client.recv(100)
-						#	print nama_grup
-						#	createGroup(nama_grup)
-						#	grup = 0
-						#	self._client.send('Berhasil Membuat Grup')
 						elif men == "2":
 							data = getGroup()
 							data = json.dumps(data)
@@ -266,6 +270,30 @@ def chat(lawan, sock, sock_lawan, thread_number):
 			print 'sent', pesan, 'to', sock_lawan
 	terimaChat(lawan, sock, sock_lawan, thread_number)
 
+def broadcastChat(sock, sock_lawans, thread_number):
+	global listNumberUsername
+	global listSocketUsername
+	while(1):
+		#print 'masuk fungsi chat'
+		pengirim = listNumberUsername[str(thread_number)]
+		#print pengirim
+		pesan = sock.recv(100)
+		#print pesan
+		#iterasi
+		for index, sock_lawan in enumerate(listSocketUsername):
+			sck_lwn = listSocketUsername(sock_lawan)
+			sck_lwn.send(pesan)
+		if(pesan == '0'):
+			break
+		if(pesan == '<<EXIT>>'):
+			return
+		else:
+			#iterasi
+			for index, lwn in enumerate(listSocketUsername):
+				insertChat(pengirim, lwn, pesan)
+				print 'sent', pesan, 'to', lwn
+	#terimaChat(lawan, sock, sock_lawan, thread_number)
+
 def terimaChat(lawan, sock, sock_lawan, thread_number):
 	while(1):
 		pesan = sock.recv(100)
@@ -276,7 +304,18 @@ def terimaChat(lawan, sock, sock_lawan, thread_number):
 			return
 		else:
 			print lawan+':', pesan
-	chat(lawan, sock, sock_lawan, thread_number)
+
+def broadcastTerimaChat(sock, thread_number):
+	while(1):
+		pesan = sock.recv(100)
+		print 'FROM CLIENT ->', pesan
+		if(pesan == '0'):
+			break
+		if(pesan == '<<EXIT>>'):
+			return
+		else:
+			print ':', pesan
+
 
 def enkripsi(pesan):
 	return base64.b64encode(pesan)
