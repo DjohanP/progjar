@@ -187,7 +187,7 @@ while(1):
 			client_socket.send(message)
 			psn=client_socket.recv(1000)
 			if(psn=="Gagal Login!"):
-				pesan = psn
+				pesan = "User belum terdaftar / password salah"
 			else:
 				global nama
 				nama=msg

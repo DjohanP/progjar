@@ -22,34 +22,39 @@ class clienthandler(Thread):
 		while (1):			
 			while cekk==0:
 				pil = self._client.recv(100)
-				print pil
+				#print pil
 				if pil=="2":
-					print "reg"
+					print "Register"
 					usr = self._client.recv(100)
 					pwd = self._client.recv(100)
 					print usr
-					print pwd
+					print enkripsi(pwd)
 					a=cekusr(usr)
 					if a==0:
+						print "Username sudah ada"
 						self._client.send("Sudah Ada")
-					else:	
+					else:
+						print "Register berhasil"	
 						self._client.send("Belum Ada")
 						masukdb(usr,pwd)
 				elif pil=="1":
-					print "login"
+					print "Login"
 					usr = self._client.recv(100)
 					pwd = self._client.recv(100)
 					print usr
-					print pwd
+					print enkripsi(pwd)
 					a=cekpwd(usr,pwd,self._client)
 					if a==0:
+						print "Login gagal"
 						self._client.send("Gagal Login!")
 					else:
+						print "Login berhasil"
 						listNumberUsername[str(self._number)] = usr
 						self._client.send("Berhasil Login!")
 						cekk=1
 				elif pil=="0":
 					print "Client Disconnected"
+					self._client.close()
 					
 			while cekk == 1:
 				men_grp = 0
@@ -127,9 +132,6 @@ sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 sock.listen(1)
 sockets.append(sock)
 def masukdb(user,passw):
-	print user
-	print passw
-	
 	#mysql.connector.connect(host='localhost',database='fp',user='root',password='')
 	#sudo dpkg -i mysql-connector-python_2.0.5-1ubuntu16.04_all.deb install mysql
 	cnx = mysql.connector.connect(host='localhost',database='fp',user='fp',password='fp')
@@ -141,6 +143,8 @@ def masukdb(user,passw):
 	cursor.execute(add_user, data_user)
 	#emp_no = cursor.lastrowid
 	cnx.commit()
+	
+	print "Berhasil Mendaftarkan User"
 
 	cursor.close()
 	cnx.close()
@@ -193,7 +197,7 @@ def cekpwd(usr,pwd,sockclient):
 		#print 'cur = ', current_user
 		global listSocketUsername
 		listSocketUsername[str(a[0][1])] = sockclient
-		print listSocketUsername
+		#print listSocketUsername
 		cursor.close()
 		cnx.close()	
 		return 1
@@ -241,12 +245,11 @@ def doLogout():
 	cursor = cnx.cursor(buffered=True)
 	query = "UPDATE user SET status='0' WHERE id=%d"
 	
-	print current_user
-	print current_user[0][0]
+	#print current_user[0][0]
 	#print query % (current_user[0])
 	cursor.execute(query % (current_user[0][0]))
 	cnx.commit()
-	
+	print current_user, "logged out"
 	cursor.close()
 	cnx.close()
 	
@@ -267,7 +270,7 @@ def chat(lawan, sock, sock_lawan, thread_number):
 			return
 		else:
 			insertChat(pengirim, lawan, pesan)
-			print 'sent', pesan, 'to', sock_lawan
+			print 'sent', enkripsi(pesan), 'to', sock_lawan
 	terimaChat(lawan, sock, sock_lawan, thread_number)
 
 def broadcastChat(sock, sock_lawans, thread_number):
@@ -291,7 +294,7 @@ def broadcastChat(sock, sock_lawans, thread_number):
 			#iterasi
 			for index, lwn in enumerate(listSocketUsername):
 				insertChat(pengirim, lwn, pesan)
-				print 'sent', pesan, 'to', lwn
+				print 'sent', enkripsi(pesan), 'to', lwn
 	#terimaChat(lawan, sock, sock_lawan, thread_number)
 
 def terimaChat(lawan, sock, sock_lawan, thread_number):
@@ -386,16 +389,20 @@ try:
 		for sockx in read_sockets:
 			if sock==sockx:
 				client, address = sock.accept()
-				sockets.append(client)
-				#print client
-				#print address
-				print('client connected from: ',address[0],'with id : ', address[1])
-				idPort.append(address[1])
-				#client.sendto("Masukkan nama anda: ",address)
-				newthread = clienthandler(client,address[1])
-				handlers.append(newthread)
-				newthread.daemon = True				
-				newthread.start()
+				if len(sockets) > 2: 
+					sockets.remove(sock)
+					sockx.close()
+				else:
+					sockets.append(client)
+					#print client
+					#print address
+					print 'client connected from: ', address[0],'with id : ', address[1]
+					idPort.append(address[1])
+					#client.sendto("Masukkan nama anda: ",address)
+					newthread = clienthandler(client,address[1])
+					handlers.append(newthread)
+					newthread.daemon = True				
+					newthread.start()
 				
 
 			else:
