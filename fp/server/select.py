@@ -6,7 +6,7 @@ cnx = mysql.connector.connect(host='localhost',database='fp',user='root',passwor
 cursor = cnx.cursor(buffered=True)
 email=('djohan.prabowo1927@gmail.com')
 add_user = "SELECT * FROM user WHERE nama=%s"
-
+#coba
 
 cursor.execute(add_user,(email,))
 data = cursor.fetchall()
