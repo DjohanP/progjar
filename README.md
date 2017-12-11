@@ -8,3 +8,10 @@ Kelompok 5
 5. Salma Nurkhafidoh    5115100053
 6. Alvin Mudhoffar      5115100062
 7. Djohan Prabowo       5115100067
+
+
+Usage :
+1. Buka cmd / terminal di direktori
+2. pyhton server.py
+3. Buka cmd / terminal lain
+4. python client.py
